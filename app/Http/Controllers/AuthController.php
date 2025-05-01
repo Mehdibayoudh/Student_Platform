@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Centre;
+use App\Models\Company;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +47,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:student,company,admin',
+            'role' => 'required|in:student,company,centre,admin', // added 'centre'
         ]);
 
         $token = Str::random(64);
@@ -56,6 +59,24 @@ class AuthController extends Controller
             'password' => Hash::make($validatedData['password']),
             'verification_token' => $token,
         ]);
+
+        // Create associated role record
+        switch ($validatedData['role']) {
+            case 'student':
+                Student::create(['user_id' => $user->id]);
+                break;
+            case 'company':
+                Company::create([
+                    'user_id' => $user->id,
+                    'company_name' => $validatedData['name'], // or prefill with input if available
+                    'company_description' => '',
+                ]);
+                break;
+            case 'centre_foramtion':
+                Centre::create(['user_id' => $user->id]);
+                break;
+            // 'admin' doesn't need an associated model
+        }
 
         Mail::to($user->email)->send(new \App\Mail\VerificationMail($user));
 

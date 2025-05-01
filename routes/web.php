@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\StudentCertificateController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentExperienceController;
@@ -58,6 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('student-experiences', StudentExperienceController::class)->middleware('auth');
     Route::resource('student-certificates', StudentCertificateController::class)->only(['store']);
     Route::delete('/student-certificates/{id}', [StudentCertificateController::class, 'destroy'])->name('student-certificates.destroy');
+    Route::middleware('auth')->post('/updateprofilecompany', [CompanyController::class, 'updateProfile'])->name('profilecompany.update');
+    Route::middleware('auth')->get('/profileupdatecompany', [CompanyController::class, 'Profileupdateview'])->name('profilecompanyviewupdate');
 
 
 });

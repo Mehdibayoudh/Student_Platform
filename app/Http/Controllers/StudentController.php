@@ -63,7 +63,15 @@ class StudentController extends Controller
             'about' => $data['about'],
         ]);
 
-        return redirect()->route('student.dashboard')->with('success', 'Profile updated successfully.');
+        switch ($user->role) {
+            case 'student':
+                return redirect()->route('student.dashboard')->with('success', 'Profile updated successfully.');
+            case 'company':
+                return redirect()->route('company.dashboard')->with('success', 'Profile updated successfully.');
+
+            default:
+                return redirect()->route('home')->with('success', 'Profile updated successfully.');
+        }
     }
 
     public function updateProfileImage(Request $request)
