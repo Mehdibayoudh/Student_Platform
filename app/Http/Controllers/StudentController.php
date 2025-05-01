@@ -48,11 +48,14 @@ class StudentController extends Controller
             'about' => 'nullable|string',
         ]);
 
+        // Set default empty array if skills is not provided
+        $skills = $data['skills'] ?? [];
+
         // Save user info
         $user->update([
             'name' => $data['name'],
             'phone' => $data['phone'],
-            'skills' => $data['skills'],
+            'skills' => $skills, // Use the default empty array if not provided
             'designation' => $data['designation'],
             'city' => $data['city'],
             'country' => $data['country'],
@@ -60,7 +63,6 @@ class StudentController extends Controller
             'about' => $data['about'],
         ]);
 
-        // Redirect to the student dashboard route
         return redirect()->route('student.dashboard')->with('success', 'Profile updated successfully.');
     }
 

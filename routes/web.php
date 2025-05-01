@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StudentCertificateController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentExperienceController;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Events\Verified;
@@ -53,6 +55,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('auth')->post('/updateprofile', [StudentController::class, 'updateProfile'])->name('profile.update');
     Route::post('/studentportfolio', [StudentController::class, 'updatePortfolio'])->name('student.updatePortfolio');
     Route::post('/studentupdateimage', [StudentController::class, 'updateProfileImage'])->name('student.updateImage');
+    Route::resource('student-experiences', StudentExperienceController::class)->middleware('auth');
+    Route::resource('student-certificates', StudentCertificateController::class)->only(['store']);
+    Route::delete('/student-certificates/{id}', [StudentCertificateController::class, 'destroy'])->name('student-certificates.destroy');
 
 
 });

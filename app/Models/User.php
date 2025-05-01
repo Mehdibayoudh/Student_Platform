@@ -53,4 +53,14 @@ class User extends Authenticatable
         'password' => 'hashed',
         'skills' => 'array',
     ];
+    public function studentExperiences()
+    {
+        return $this->hasMany(StudentExperience::class, 'student_id');
+    }
+
+    public function studentCertificates()
+    {
+        return $this->hasMany(StudentCertificate::class, 'user_id');
+    }
+
 }
