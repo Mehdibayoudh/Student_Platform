@@ -61,6 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/student-certificates/{id}', [StudentCertificateController::class, 'destroy'])->name('student-certificates.destroy');
     Route::middleware('auth')->post('/updateprofilecompany', [CompanyController::class, 'updateProfile'])->name('profilecompany.update');
     Route::middleware('auth')->get('/profileupdatecompany', [CompanyController::class, 'Profileupdateview'])->name('profilecompanyviewupdate');
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/offers', [CompanyController::class, 'store'])->name('offers.store');
+    });
 
 
 });

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Notifications\NewOfferNotification;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -46,5 +48,25 @@ class CompanyController extends Controller
         return redirect()->route('company.dashboard')->with('success', 'Profile updated successfully.');
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'location' => 'required',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
 
+        $company = auth()->user()->company;
+        $offer = $company->offers()->create($data);
+
+        // Notify all students
+        $students = User::where('role', 'student')->get();
+        foreach ($students as $student) {
+            $student->notify(new NewOfferNotification($offer));
+        }
+
+        return redirect()->back()->with('success', 'Offer created and students notified.');
+    }
 }

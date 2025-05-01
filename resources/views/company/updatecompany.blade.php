@@ -163,105 +163,66 @@
 
                                 <!--end tab-pane-->
                                 <div class="tab-pane {{ request()->is('*#experience') ? 'active' : '' }}" id="experience" role="tabpanel">
-                                    <form method="POST"
-                                          action="{{ isset($editingExperience) ? route('student-experiences.update', $editingExperience->id) : route('student-experiences.store') }}">
+                                    <form method="POST" action="{{ route('offers.store') }}">
                                         @csrf
-                                        @if(isset($editingExperience))
-                                            @method('PUT')
-                                        @endif
 
-                                        <div id="newlink">
-                                            <div id="1">
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-3">
-                                                            <label for="jobTitle" class="form-label">Job Title</label>
-                                                            <input type="text" class="form-control" id="jobTitle" name="job_title" placeholder="Job title"
-                                                                   value="{{ old('job_title', $editingExperience->job_title ?? '') }}">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="companyName" class="form-label">Company Name</label>
-                                                            <input type="text" class="form-control" id="companyName" name="company_name" placeholder="Company name"
-                                                                   value="{{ old('company_name', $editingExperience->company_name ?? '') }}">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="startYear" class="form-label">Experience Years</label>
-                                                            <div class="row">
-                                                                <div class="col-lg-5">
-                                                                    <select class="form-control" name="start_year" id="startYear">
-                                                                        <option value="">Select Start Year</option>
-                                                                        @for ($year = 2001; $year <= 2025; $year++)
-                                                                            <option value="{{ $year }}"
-                                                                                {{ (old('start_year', $editingExperience->start_year ?? '') == $year) ? 'selected' : '' }}>
-                                                                                {{ $year }}
-                                                                            </option>
-                                                                        @endfor
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="col-auto align-self-center">
-                                                                    to
-                                                                </div>
-
-                                                                <div class="col-lg-5">
-                                                                    <select class="form-control" name="end_year" id="endYear">
-                                                                        <option value="">Select End Year</option>
-                                                                        @for ($year = 2001; $year <= 2025; $year++)
-                                                                            <option value="{{ $year }}"
-                                                                                {{ (old('end_year', $editingExperience->end_year ?? '') == $year) ? 'selected' : '' }}>
-                                                                                {{ $year }}
-                                                                            </option>
-                                                                        @endfor
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-3">
-                                                            <label for="jobDescription" class="form-label">Job Description</label>
-                                                            <textarea class="form-control" id="jobDescription" name="description" rows="3" placeholder="Enter description">{{ old('description', $editingExperience->description ?? '') }}</textarea>
-                                                        </div>
-                                                    </div>
-
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="mb-3">
+                                                    <label for="title" class="form-label">Offer Title</label>
+                                                    <input type="text" class="form-control" id="title" name="title" placeholder="Offer title" value="{{ old('title') }}">
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-lg-12 mt-3">
-                                            <div class="hstack gap-2">
-                                                <button type="submit" class="btn btn-success">
-                                                    {{ isset($editingExperience) ? 'Update Experience' : 'Save Experience' }}
-                                                </button>
+                                            <div class="col-lg-12">
+                                                <div class="mb-3">
+                                                    <label for="location" class="form-label">Location</label>
+                                                    <input type="text" class="form-control" id="location" name="location" placeholder="Location" value="{{ old('location') }}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label for="start_date" class="form-label">Start Date</label>
+                                                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ old('start_date') }}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label for="end_date" class="form-label">End Date</label>
+                                                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ old('end_date') }}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12">
+                                                <div class="mb-3">
+                                                    <label for="description" class="form-label">Offer Description</label>
+                                                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter description">{{ old('description') }}</textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12 mt-3">
+                                                <button type="submit" class="btn btn-primary">Publish Offer</button>
                                             </div>
                                         </div>
                                     </form>
-
-                                    {{-- Show existing experiences --}}
-                                    @foreach(auth()->user()->studentExperiences as $experience)
+                                    @foreach(auth()->user()->company->offers as $offer)
                                         <div class="card mt-3">
                                             <div class="card-body">
-                                                <h5 class="card-title">{{ $experience->job_title }} at {{ $experience->company_name }}</h5>
-                                                <h6 class="card-subtitle mb-2 text-muted">{{ $experience->start_year }} - {{ $experience->end_year ?? 'Present' }}</h6>
-                                                <p class="card-text">{{ $experience->description }}</p>
-                                                <a href="{{ route('student-experiences.edit', $experience->id) }}#experience" class="btn btn-sm btn-primary">Edit</a>                                                    @csrf
-                                                <form action="{{ route('student-experiences.destroy', $experience->id) }}" method="POST" style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                <h5 class="card-title"> {{ $offer->title }}</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">{{ $offer->start_date }} - {{ $offer->end_date ?? 'Present' }}</h6>
+                                                <p class="card-text">{{ $offer->description }}</p>
+                                                <p class="card-text"> Location: {{ $offer->location }}</p>
+
                                                 </form>
                                             </div>
                                         </div>
                                     @endforeach
+                                    {{-- Show existing experiences --}}
 
                                 </div>
+
                                 <!--end tab-pane-->
 
                                 <!--end tab-pane-->

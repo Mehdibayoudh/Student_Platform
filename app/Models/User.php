@@ -65,4 +65,8 @@ class User extends Authenticatable
     public function studentProfile() { return $this->hasOne(Student::class); }
     public function companyProfile() { return $this->hasOne(Company::class); }
     public function centreProfile() { return $this->hasOne(Centre::class); }
+    public function company()
+    {
+        return $this->hasOne(Company::class);
+    }
 }
