@@ -215,6 +215,10 @@
                                                 <p class="card-text">{{ $offer->description }}</p>
                                                 <p class="card-text"> Location: {{ $offer->location }}</p>
 
+                                                <form action="{{ route('offer.destroy', $offer->id) }}" method="POST" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                                 </form>
                                             </div>
                                         </div>

@@ -41,7 +41,17 @@ Route::get('/verify-email/{id}/{token}', [AuthController::class, 'verifyEmail'])
 // Dashboards (placeholder routes)
 Route::middleware('auth')->group(function () {
     Route::get('/student', function () {
-        return view('student.dashboard', ['user' => Auth::user()]);
+        $user = Auth::user();
+
+        $notifications = [];
+        if ($user->role === 'student') {
+            $notifications = $user->notifications()
+                ->where('type', App\Notifications\NewOfferNotification::class)
+                ->latest()
+                ->get();
+        }
+
+        return view('student.dashboard', compact('user', 'notifications'));
     })->name('student.dashboard');
 
     Route::get('/company', function () {
@@ -64,7 +74,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::post('/offers', [CompanyController::class, 'store'])->name('offers.store');
     });
+    Route::delete('/offer-company/{id}', [CompanyController::class, 'destroy'])->name('offer.destroy');
 
+    Route::get('/offers/{id}', [CompanyController::class, 'show'])->name('offers.show');
+    Route::post('/offer/post-student', [CompanyController::class, 'postStudent'])->name('offer.postStudent');
+    Route::get('/student/profile/{id}', [App\Http\Controllers\StudentController::class, 'show'])->name('student.publicprofile');
+    Route::get('/admin/users', [App\Http\Controllers\AdminController::class, 'showusers'])->name('admin.users.index');
 
 });
 

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offer;
 use App\Models\User;
 use App\Notifications\NewOfferNotification;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -69,4 +71,47 @@ class CompanyController extends Controller
 
         return redirect()->back()->with('success', 'Offer created and students notified.');
     }
+    public function destroy($id)
+    {
+        $offer = Offer::where('company_id', auth()->id())->findOrFail($id);
+
+        // Delete related notifications
+        DatabaseNotification::where('data->offer_id', $id)->delete();
+
+        // Delete the offer
+        $offer->delete();
+
+        return redirect()->back()->with('success', 'Offer and related notifications deleted successfully.');
+    }
+    public function show($id)
+    {
+        $offer = Offer::with('company')->findOrFail($id);
+
+        return response()->json([
+            'title' => $offer->title,
+            'description' => $offer->description,
+            'location' => $offer->location,
+            'start_date' => $offer->start_date,
+            'end_date' => $offer->end_date,
+            'company' => $offer->company->company_name ?? 'Unknown'
+        ]);
+    }
+    public function postStudent(Request $request)
+    {
+
+        $validated = $request->validate([
+            'offer_id' => 'required|exists:offers,id',
+            'student_id' => 'required|exists:users,id',
+        ]);
+
+        // Associate student with the offer using the pivot table
+        $offer = Offer::findOrFail($validated['offer_id']);
+        $student = User::findOrFail($validated['student_id']);
+
+        // Attach the student to the offer
+        $offer->students()->attach($student->id);
+
+        return redirect()->back()->with('success', 'Your request send');
+    }
+
 }

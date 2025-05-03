@@ -14,4 +14,9 @@ class Offer extends Model
     {
         return $this->belongsTo(Company::class);
     }
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'offer_student');
+    }
+
 }

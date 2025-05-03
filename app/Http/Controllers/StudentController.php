@@ -94,5 +94,20 @@ class StudentController extends Controller
 
         return back()->with('success', 'Profile image updated successfully.');
     }
+    public function show($id)
+    {
+        $student = \App\Models\User::where('id', $id)->where('role', 'student')->firstOrFail();
+
+        // Optional: if you want notifications only for that user
+        $notifications = $student->notifications()
+            ->where('type', \App\Notifications\NewOfferNotification::class)
+            ->latest()
+            ->get();
+
+        $user = Auth::user();
+
+        return view('student.publicstudentprofile', compact('student', 'notifications', 'user'));
+    }
+
 
 }

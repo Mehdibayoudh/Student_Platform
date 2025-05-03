@@ -69,4 +69,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Company::class);
     }
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class, 'offer_student');
+    }
+
 }

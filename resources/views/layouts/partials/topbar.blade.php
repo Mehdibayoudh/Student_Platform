@@ -1,4 +1,13 @@
 <header id="page-topbar" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+    <style>
+        #modalDescription {
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+    </style>
     <div class="layout-width">
         <div class="navbar-header">
             <div class="d-flex">
@@ -109,9 +118,22 @@
                         </div>
                     </div>
                 </form>
-            </div>
 
-            <div class="d-flex align-items-center">
+            </div>
+            @php
+                $role = auth()->user()->role ?? null;
+            @endphp
+            @if ($role === 'student')
+                <a href="{{ route('student.dashboard') }}">
+                    <div>Home</div>
+                </a>
+            @elseif ($role === 'company')
+                <a href="{{ route('company.dashboard') }}">
+                    <div>Home</div>
+                </a>
+            @else
+                <div>Home</div> {{-- fallback, optional --}}
+            @endif            <div class="d-flex align-items-center">
 
                 <div class="dropdown d-md-none topbar-head-dropdown header-item">
                     <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -415,16 +437,7 @@
                                             All (4)
                                         </a>
                                     </li>
-                                    <li class="nav-item waves-effect waves-light">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#messages-tab" role="tab" aria-selected="false">
-                                            Messages
-                                        </a>
-                                    </li>
-                                    <li class="nav-item waves-effect waves-light">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#alerts-tab" role="tab" aria-selected="false">
-                                            Alerts
-                                        </a>
-                                    </li>
+
                                 </ul>
                             </div>
 
@@ -433,104 +446,47 @@
                         <div class="tab-content position-relative" id="notificationItemsTabContent">
                             <div class="tab-pane fade show active py-2 ps-2" id="all-noti-tab" role="tabpanel">
                                 <div data-simplebar style="max-height: 300px;" class="pe-2">
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3 flex-shrink-0">
-                                                <span class="avatar-title bg-info-subtle text-info rounded-circle fs-16">
-                                                    <i class="bx bx-badge-check"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-2 lh-base">Your <b>Elite</b> author Graphic
-                                                        Optimization <span class="text-secondary">reward</span> is
-                                                        ready!
-                                                    </h6>
-                                                </a>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> Just 30 sec ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check01">
-                                                    <label class="form-check-label" for="all-notification-check01"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @if(isset($notifications) && $notifications->isNotEmpty())
 
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" class="me-3 rounded-circle avatar-xs flex-shrink-0" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Angela Bernier</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">Answered to your comment on the cash flow forecast's
-                                                        graph 🔔.</p>
+                                        @foreach ($notifications as $notification)
+                                            <div class="text-reset notification-item d-block dropdown-item position-relative">
+                                                <div class="d-flex">
+                                                    <div class="avatar-xs me-3 flex-shrink-0">
+                <span class="avatar-title bg-info-subtle text-info rounded-circle fs-16">
+                    <i class="bx bx-badge-check"></i>
+                </span>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <a
+                                                            class="stretched-link"
+                                                            href="#"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#offerModal"
+                                                            data-id="{{ $notification->data['offer_id'] }}"
+                                                        >
+                                                            <h6 class="mt-0 mb-2 lh-base">
+                                                                New offer from <b>{{ $notification->data['company'] }}</b>:
+                                                                <span class="text-secondary">{{ $notification->data['title'] }}</span>
+                                                            </h6>
+                                                        </a>
+                                                        <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
+                                                            <span><i class="mdi mdi-clock-outline"></i> {{ $notification->created_at->diffForHumans() }}</span>
+                                                        </p>
+                                                    </div>
+                                                    <div class="px-2 fs-15">
+                                                        <div class="form-check notification-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="notif-check-{{ $notification->id }}">
+                                                            <label class="form-check-label" for="notif-check-{{ $notification->id }}"></label>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 48 min ago</span>
-                                                </p>
                                             </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check02">
-                                                    <label class="form-check-label" for="all-notification-check02"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        @endforeach
 
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3 flex-shrink-0">
-                                                <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-16">
-                                                    <i class='bx bx-message-square-dots'></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-2 fs-13 lh-base">You have received <b class="text-success">20</b> new messages in the conversation
-                                                    </h6>
-                                                </a>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 2 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check03">
-                                                    <label class="form-check-label" for="all-notification-check03"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-8.jpg" class="me-3 rounded-circle avatar-xs flex-shrink-0" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Maureen Gibson</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">We talked about a project on linkedin.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 4 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check04">
-                                                    <label class="form-check-label" for="all-notification-check04"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @endif
+
+
 
                                     <div class="my-3 text-center view-all">
                                         <button type="button" class="btn btn-soft-success waves-effect waves-light">View
@@ -565,76 +521,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Angela Bernier</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">Answered to your comment on the cash flow forecast's
-                                                        graph 🔔.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 2 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check02">
-                                                    <label class="form-check-label" for="messages-notification-check02"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-6.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Kenneth Brown</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">Mentionned you in his comment on 📃 invoice #12501.
-                                                    </p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 10 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check03">
-                                                    <label class="form-check-label" for="messages-notification-check03"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-8.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Maureen Gibson</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">We talked about a project on linkedin.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 3 days ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check04">
-                                                    <label class="form-check-label" for="messages-notification-check04"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <div class="my-3 text-center view-all">
                                         <button type="button" class="btn btn-soft-success waves-effect waves-light">View
@@ -667,16 +554,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <h6 class="dropdown-header">Welcome Anna!</h6>
-                        <a class="dropdown-item" href="pages-profile.html"><i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Profile</span></a>
-                        <a class="dropdown-item" href="apps-chat.html"><i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Messages</span></a>
-                        <a class="dropdown-item" href="apps-tasks-kanban.html"><i class="mdi mdi-calendar-check-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Taskboard</span></a>
-                        <a class="dropdown-item" href="pages-faqs.html"><i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Help</span></a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="pages-profile.html"><i class="mdi mdi-wallet text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Balance : <b>$5971.67</b></span></a>
-                        <a class="dropdown-item" href="pages-profile-settings.html"><span class="badge bg-success-subtle text-success mt-1 float-end">New</span><i class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Settings</span></a>
-                        <a class="dropdown-item" href="auth-lockscreen-basic.html"><i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Lock screen</span></a>
-                        <!-- Add a form for logout inside the dropdown item -->
+                    <!-- Add a form for logout inside the dropdown item -->
                         <form action="{{ route('logout') }}" method="POST" id="logout-form" style="display: none;">
                             @csrf
                         </form>
@@ -691,3 +569,63 @@
         </div>
     </div>
 </header>
+<!-- Modal body -->
+<!-- Offer Modal -->
+<div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Offer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Company:</strong> <span id="modalCompany"></span></p>
+                <p><strong>Title:</strong> <span id="modalTitle"></span></p>
+                <p><strong>Description:</strong>
+                    <span id="modalDescription" class="d-block text-wrap overflow-auto" style="max-height: 150px; white-space: pre-wrap;"></span>
+                </p>
+                <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+                <p><strong>Start Date:</strong> <span id="modalStart"></span></p>
+                <p><strong>End Date:</strong> <span id="modalEnd"></span></p>
+                <!-- Hidden fields -->
+                <form method="POST" action="{{ route('offer.postStudent') }}">
+                    @csrf
+                    <!-- Hidden inputs instead of spans -->
+                    <input type="hidden" name="offer_id" id="modalOfferIdInput">
+                    <input type="hidden" name="student_id" id="modalStudentIdInput" value="{{ auth()->user()->id }}">
+
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const offerModal = document.getElementById('offerModal');
+
+    offerModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        const offerId = button.getAttribute('data-id');
+
+        // Set hidden input value
+        document.getElementById('modalOfferIdInput').value = offerId;
+
+        fetch(`/offers/${offerId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modalCompany').textContent = data.company;
+                document.getElementById('modalTitle').textContent = data.title;
+                document.getElementById('modalDescription').textContent = data.description;
+                document.getElementById('modalLocation').textContent = data.location;
+                document.getElementById('modalStart').textContent = data.start_date ?? 'N/A';
+                document.getElementById('modalEnd').textContent = data.end_date ?? 'N/A';
+            })
+            .catch(error => {
+                console.error('Error fetching offer:', error);
+            });
+    });
+</script>
