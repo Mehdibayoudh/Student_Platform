@@ -16,4 +16,9 @@ class Centre extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function formations()
+    {
+        return $this->hasMany(Formation::class);
+    }
+
 }

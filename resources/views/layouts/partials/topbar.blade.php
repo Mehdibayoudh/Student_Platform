@@ -131,6 +131,10 @@
                 <a href="{{ route('company.dashboard') }}">
                     <div>Home</div>
                 </a>
+            @elseif ($role === 'centre formation')
+                <a href="{{ route('centre formation.dashboard') }}">
+                    <div>Home</div>
+                </a>
             @else
                 <div>Home</div> {{-- fallback, optional --}}
             @endif            <div class="d-flex align-items-center">

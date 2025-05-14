@@ -94,6 +94,7 @@
                                         <option selected disabled value="">Choose a role...</option>
                                         <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
                                         <option value="company" {{ old('role') == 'company' ? 'selected' : '' }}>Company</option>
+                                        <option value="centre formation" {{ old('role') == 'centre formation' ? 'selected' : '' }}>centre formation</option>
                                     </select>
                                     <div class="invalid-feedback">Please select a role</div>
                                 </div>

@@ -47,7 +47,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:student,company,centre,admin', // added 'centre'
+            'role' => 'required|in:student,company,centre formation,admin', // added 'centre'
         ]);
 
         $token = Str::random(64);
@@ -72,7 +72,7 @@ class AuthController extends Controller
                     'company_description' => '',
                 ]);
                 break;
-            case 'centre_foramtion':
+            case 'centre formation':
                 Centre::create(['user_id' => $user->id]);
                 break;
             // 'admin' doesn't need an associated model

@@ -95,7 +95,7 @@
                         <div class="card-body p-4">
                             <div class="tab-content">
                                 <div class="tab-pane active" id="personalDetails" role="tabpanel">
-                                    <form action="{{ route('profilecompany.update') }}" method="POST">
+                                    <form action="{{ route('profile.updatecentre') }}" method="POST">
                                         @csrf
                                         <div class="row">
                                             <div class="col-lg-6">
@@ -163,14 +163,15 @@
 
                                 <!--end tab-pane-->
                                 <div class="tab-pane {{ request()->is('*#experience') ? 'active' : '' }}" id="experience" role="tabpanel">
-                                    <form method="POST" action="{{ route('offers.store') }}">
+                                    {{-- Form to add a new formation --}}
+                                    <form method="POST" action="{{ route('formations.store') }}">
                                         @csrf
 
                                         <div class="row">
                                             <div class="col-lg-12">
                                                 <div class="mb-3">
-                                                    <label for="title" class="form-label">Offer Title</label>
-                                                    <input type="text" class="form-control" id="title" name="title" placeholder="Offer title" value="{{ old('title') }}">
+                                                    <label for="title" class="form-label">Formation Title</label>
+                                                    <input type="text" class="form-control" id="title" name="title" placeholder="Formation title" value="{{ old('title') }}">
                                                 </div>
                                             </div>
 
@@ -197,34 +198,38 @@
 
                                             <div class="col-lg-12">
                                                 <div class="mb-3">
-                                                    <label for="description" class="form-label">Offer Description</label>
+                                                    <label for="description" class="form-label">Formation Description</label>
                                                     <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter description">{{ old('description') }}</textarea>
                                                 </div>
                                             </div>
 
                                             <div class="col-lg-12 mt-3">
-                                                <button type="submit" class="btn btn-primary">Publish Offer</button>
+                                                <button type="submit" class="btn btn-primary">Publish Formation</button>
                                             </div>
                                         </div>
                                     </form>
-                                    @foreach(auth()->user()->company->offers as $offer)
-                                        <div class="card mt-3">
-                                            <div class="card-body">
-                                                <h5 class="card-title"> {{ $offer->title }}</h5>
-                                                <h6 class="card-subtitle mb-2 text-muted">{{ $offer->start_date }} - {{ $offer->end_date ?? 'Present' }}</h6>
-                                                <p class="card-text">{{ $offer->description }}</p>
-                                                <p class="card-text"> Location: {{ $offer->location }}</p>
 
-                                                <form action="{{ route('offer.destroy', $offer->id) }}" method="POST" style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                                </form>
+                                    {{-- Display existing formations --}}
+                                    @if(auth()->user()->centreProfile && auth()->user()->centreProfile->formations)
+                                        @foreach(auth()->user()->centreProfile->formations as $formation)
+                                            <div class="card mt-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ $formation->title }}</h5>
+                                                    <h6 class="card-subtitle mb-2 text-muted">{{ $formation->start_date }} - {{ $formation->end_date ?? 'Present' }}</h6>
+                                                    <p class="card-text">{{ $formation->description }}</p>
+                                                    <p class="card-text">Location: {{ $formation->location }}</p>
+
+                                                    <form action="{{ route('formations.destroy', $formation->id) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endforeach
-                                    {{-- Show existing experiences --}}
-
+                                        @endforeach
+                                    @else
+                                        <p>No formations found for your centre.</p>
+                                    @endif
                                 </div>
 
                                 <!--end tab-pane-->

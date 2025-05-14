@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CentreFormationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\StudentCertificateController;
 use App\Http\Controllers\StudentController;
@@ -42,7 +43,8 @@ Route::get('/verify-email/{id}/{token}', [AuthController::class, 'verifyEmail'])
 Route::middleware('auth')->group(function () {
     Route::get('/student', function () {
         $user = Auth::user();
-
+        $offers = \App\Models\Offer::with('company')->latest()->get();
+        $formations = \App\Models\Formation::with('centre.user')->latest()->get();
         $notifications = [];
         if ($user->role === 'student') {
             $notifications = $user->notifications()
@@ -51,12 +53,15 @@ Route::middleware('auth')->group(function () {
                 ->get();
         }
 
-        return view('student.dashboard', compact('user', 'notifications'));
+        return view('student.dashboard', compact('user', 'notifications','offers', 'formations'));
     })->name('student.dashboard');
 
     Route::get('/company', function () {
         return view('company.dashboard', ['user' => Auth::user()]);
     })->name('company.dashboard');
+    Route::get('/centre formation', function () {
+        return view('centre formation.dashboard', ['user' => Auth::user()]);
+    })->name('centre formation.dashboard');
 
     Route::get('/admin', function () {
         return view('admin.dashboard', ['user' => Auth::user()]);
@@ -80,6 +85,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/offer/post-student', [CompanyController::class, 'postStudent'])->name('offer.postStudent');
     Route::get('/student/profile/{id}', [App\Http\Controllers\StudentController::class, 'show'])->name('student.publicprofile');
     Route::get('/admin/users', [App\Http\Controllers\AdminController::class, 'showusers'])->name('admin.users.index');
+    Route::middleware('auth')->get('/profileupdatecentre', [\App\Http\Controllers\CentreFormationController::class, 'Profileupdateview'])->name('profileupdatecentre');
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/formation', [\App\Http\Controllers\CentreFormationController::class, 'store'])->name('formations.store');
+    });
+    Route::delete('/formation-centre/{id}', [CentreFormationController::class, 'destroy'])->name('formations.destroy');
+    Route::middleware('auth')->post('/updateprofile', [CentreFormationController::class, 'updateProfile'])->name('profile.updatecentre');
 
 });
 
